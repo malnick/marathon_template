@@ -25,7 +25,7 @@ haproxy:
       - forwardfor
       - http-server-close
       - redispatch 
-  listen:
+  listens:
     stats:
       bind: '0.0.0.0:9090'
       mode: http
@@ -34,12 +34,12 @@ haproxy:
         - hide-version
         - 'url /'
         - 'auth admin:admin'
-  frontend:
+  frontends:
     http-in:
       bind: '*:80'
       mode: http
       default_backend: nodes
-  backend:
+  backends:
     nodes:
       balance: leastconn
       option: forwardfor
