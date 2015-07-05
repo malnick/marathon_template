@@ -94,12 +94,12 @@ module Marathon_template
           f.write "backend #{backend}\n"
             configuration.each do |setting, values|
               if setting == 'server'
-                app_name = values['app_name']
-                servers = get_servers(app_name)
-                LOG.info "Returned: #{servers}"
-                servers.each do |s|
-                  
-                  f.write "#{app_name} s "
+                app_name  = values['app_name']
+                options   = values['options']
+                servers   = get_servers(app_name)
+                LOG.info "#{app_name}: #{servers}"
+                servers.each do |host, port|
+                  f.write "\t#{app_name} #{host}:#{port.first} #{options}\n"
                 end 
               elsif values.kind_of?(Array)
                 values.each do |value|
@@ -119,7 +119,7 @@ module Marathon_template
     end
 
     def self.get_servers(app_name)
-      LOG.info "Getting host and port assignments for #{app_name}"
+      LOG.info "Getting host and port assignments for #{app_name}..."
       marathon_app      = "#{CONFIG[:marathon]}/v2/apps/#{app_name}"
       encoded_uri       = URI.encode(marathon_app.to_s)
       uri               = URI.parse(encoded_uri)
@@ -131,7 +131,6 @@ module Marathon_template
         return_hash = Hash.new 
         json        = JSON.parse(response.body)
         tasks       = json['app']['tasks']
-        LOG.info tasks 
         tasks.each_with_index do |task, i|
           return_hash[task['host']] = task['ports']
         end

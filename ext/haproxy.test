@@ -35,4 +35,5 @@ backend nodes
 	balance leastconn
 	option forwardfor
 	http-request http-request set-header X-Forwarded-Port %[dst_port]
-versionctl s versionctl s 
+	versionctl mesosslave1:31000 check
+	versionctl mesosslave2:31000 check
