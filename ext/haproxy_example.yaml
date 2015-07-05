@@ -1,4 +1,5 @@
 ---
+marathon: 'http://10.33.100.11:8080'
 haproxy:
   global:
     daemon:
@@ -34,6 +35,9 @@ haproxy:
         - hide-version
         - 'url /'
         - 'auth admin:admin'
+#      server:    
+#        id: ${name-of-app-in-marathon} 
+#        options: check
   frontends:
     http-in:
       bind: '*:80'
@@ -46,5 +50,5 @@ haproxy:
       http-request: 
         - 'http-request set-header X-Forwarded-Port %[dst_port]'
       server:    
-        id: ${name-of-app-in-marathon} 
+        app_name: versionctl 
         options: check

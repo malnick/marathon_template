@@ -47,7 +47,7 @@ module Marathon_template
           abort "Must pass default parameters in haproxy.yaml"
         end
 
-        # Write out the listners section
+        # Write out the listners sections
         if CONFIG[:haproxy_listen] 
           CONFIG[:haproxy_listen].each do |listener, configuration|
           f.write "listen #{listener}\n"
@@ -65,9 +65,80 @@ module Marathon_template
               end
             end
           end
+          # TODO include calling class to build servers 
         end
 
+        # Write out the frontends sections
+        if CONFIG[:haproxy_frontends] 
+          CONFIG[:haproxy_frontends].each do |frontend, configuration|
+          f.write "frontend #{frontend}\n"
+            configuration.each do |setting, values|
+              if values.kind_of?(Array)
+                values.each do |value|
+                  f.write "\t#{setting} #{value}\n"
+                end
+              elsif values.kind_of?(Hash)
+                values.each do |k,v|
+                  f.write "\t#{k} #{v}\n"
+                end
+              else
+                f.write "\t#{setting} #{values}\n"
+              end
+            end
+          end
+        end
+
+        # Write out the backends sections
+        if CONFIG[:haproxy_backends] 
+          CONFIG[:haproxy_backends].each do |backend, configuration|
+          f.write "backend #{backend}\n"
+            configuration.each do |setting, values|
+              if setting == 'server'
+                app_name = values['app_name']
+                servers = get_servers(app_name)
+                LOG.info "Returned: #{servers}"
+                servers.each do |s|
+                  
+                  f.write "#{app_name} s "
+                end 
+              elsif values.kind_of?(Array)
+                values.each do |value|
+                  f.write "\t#{setting} #{value}\n"
+                end
+              elsif values.kind_of?(Hash)
+                values.each do |k,v|
+                  f.write "\t#{k} #{v}\n"
+                end
+              else
+                f.write "\t#{setting} #{values}\n"
+              end
+            end
+          end
+        end
       end
+    end
+
+    def self.get_servers(app_name)
+      LOG.info "Getting host and port assignments for #{app_name}"
+      marathon_app      = "#{CONFIG[:marathon]}/v2/apps/#{app_name}"
+      encoded_uri       = URI.encode(marathon_app.to_s)
+      uri               = URI.parse(encoded_uri)
+      http              = Net::HTTP.new(uri.host, uri.port)
+      request           = Net::HTTP::Get.new(uri.request_uri)
+      response          = http.request(request)
+
+      if response.code == '200'
+        return_hash = Hash.new 
+        json        = JSON.parse(response.body)
+        tasks       = json['app']['tasks']
+        LOG.info tasks 
+        tasks.each_with_index do |task, i|
+          return_hash[task['host']] = task['ports']
+        end
+      else
+        abort LOG.error "Failed connecting to #{@uri}, response code: #{response.code}"
+      end
+      return_hash
     end
 
     def reload_haproxy_service
