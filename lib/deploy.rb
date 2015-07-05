@@ -1,17 +1,22 @@
 module Marathon_template
   class Deploy
-    def self.haproxy(config)
-      write_haproxy_cfg(config)
-      reload_haproxy_service
+    def self.haproxy
+      write_haproxy_cfg
+      #reload_haproxy_service
     end
 
-    def write_haproxy_cfg
-      File.open('/etc/haproxy/haproxy.test') do |f|
-        if @config[:haproxy_global] 
-          f.write 'global'
-          @config[:haproxy_global].each do |k,v|
-            LOG.info k + v
-            f.write k + v
+    def self.write_haproxy_cfg
+      File.open('/Users/malnick/projects/mesosphere_template/ext/haproxy.test', 'wb') do |f|
+        if CONFIG[:haproxy_global] 
+          f.write "global\n"
+          CONFIG[:haproxy_global].each do |directive,value|
+            if value.kind_of?(Array)
+              value.each do |value|
+                f.write "\t#{directive} #{value}\n"
+              end
+            else
+              f.write "\t#{directive}\n"
+            end
           end
         else
           abort "Must pass global parameters in haproxy.yaml"

@@ -21,19 +21,19 @@ module Marathon_template
       end
 
       # Configuration
-      @config[:haproxy_global]      = config_file['haproxy']['global']      || abort "Must pass global options in haproxy.yaml" 
-      @config[:haproxy_defaults]    = config_file['haproxy']['defaults']    || abort "Must pass default options in haproxy.yaml"
-      @config[:haproxy_listen]      = config_file['haproxy']['listens']     || undef
-      @config[:haproxy_frontends]   = config_file['haproxy']['frontends']   || undef
-      @config[:haproxy_backends]    = config_file['haproxy']['backends']    || undef
+      @config[:haproxy_global]      = config_file['haproxy']['global']      #|| abort "Must pass global options in haproxy.yaml" 
+      @config[:haproxy_defaults]    = config_file['haproxy']['defaults']    #|| abort "Must pass default options in haproxy.yaml"
+      @config[:haproxy_listen]      = config_file['haproxy']['listens']     || null
+      @config[:haproxy_frontends]   = config_file['haproxy']['frontends']   || null
+      @config[:haproxy_backends]    = config_file['haproxy']['backends']    || null
       
       # Determine where HaProxy lives
-      distro = IO.popen('uname').readlines
-      if distro == 'Linux'
-        @config[:distro] = distro
-      else
-        abort "Sorry, #{distro} is not supported." 
-      end
+#      distro = IO.popen('uname').readlines
+#      if distro == 'Linux' 
+#        @config[:distro] = distro
+#      else
+#        abort "Sorry, #{distro} is not supported." 
+#      end
 
       @config.each do |k,v|
         LOG.info("#{k}: #{v}")
