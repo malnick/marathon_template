@@ -25,9 +25,14 @@ rescue Exception => e
 end
 
 begin
+
   LOG = Logger.new(STDOUT) 
   config_path = ENV['MARATHON_TEMPLATE_CONFIG_PATH'] || '/etc/haproxy.yaml'
-  CONFIG = MARATHON_TEMPLATE::Options.initialize(config_path)
+  CONFIG = Marathon_template::Options.initialize(config_path)
+  Marathon_template::Deploy.haproxy(CONFIG)
+  
+  # TODO add in a cron job for every minute refresh of Deploy class if the cron job does not already exist
+  
 rescue Exception => e
   puts e.backtrace
   puts e.message
