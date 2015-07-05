@@ -27,6 +27,8 @@ listen stats_test
 	stats hide-version
 	stats url /
 	stats auth admin:admin
+	versionctl mesosslave1:31000 check
+	versionctl mesosslave2:31000 check
 frontend http-in
 	bind *:80
 	mode http

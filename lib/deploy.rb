@@ -52,7 +52,15 @@ module Marathon_template
           CONFIG[:haproxy_listen].each do |listener, configuration|
           f.write "listen #{listener}\n"
             configuration.each do |setting, values|
-              if values.kind_of?(Array)
+              if setting == 'server'
+                app_name  = values['app_name']
+                options   = values['options']
+                servers   = get_servers(app_name)
+                LOG.info "#{app_name}: #{servers}"
+                servers.each do |host, port|
+                  f.write "\t#{app_name} #{host}:#{port.first} #{options}\n"
+                end 
+              elsif values.kind_of?(Array)
                 values.each do |value|
                   f.write "\t#{setting} #{value}\n"
                 end

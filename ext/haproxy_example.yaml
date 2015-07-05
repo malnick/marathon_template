@@ -35,8 +35,9 @@ haproxy:
         - hide-version
         - 'url /'
         - 'auth admin:admin'
+# Can add server blocks in listen address as well
 #      server:    
-#        id: ${name-of-app-in-marathon} 
+#        app_name: versionctl 
 #        options: check
   frontends:
     http-in:
