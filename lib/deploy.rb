@@ -7,20 +7,53 @@ module Marathon_template
 
     def self.write_haproxy_cfg
       File.open('/Users/malnick/projects/mesosphere_template/ext/haproxy.test', 'wb') do |f|
+        # Write out the global section
         if CONFIG[:haproxy_global] 
           f.write "global\n"
-          CONFIG[:haproxy_global].each do |directive,value|
-            if value.kind_of?(Array)
-              value.each do |value|
+          CONFIG[:haproxy_global].each do |directive,values|
+            if values.kind_of?(Array)
+              values.each do |value|
                 f.write "\t#{directive} #{value}\n"
               end
             else
-              f.write "\t#{directive}\n"
+              f.write "\t#{directive} #{values}\n"
             end
           end
         else
           abort "Must pass global parameters in haproxy.yaml"
         end
+        
+        # Write out the defaults section
+        if CONFIG[:haproxy_defaults] 
+          f.write "defaults\n"
+          CONFIG[:haproxy_defaults].each do |directive,values|
+            if values.kind_of?(Array)
+              values.each do |value|
+                f.write "\t#{directive} #{value}\n"
+              end
+            else
+              f.write "\t#{directive} #{values}\n"
+            end
+          end
+        else
+          abort "Must pass default parameters in haproxy.yaml"
+        end
+
+        # Write out the listners section
+        if CONFIG[:haproxy_listen] 
+          CONFIG[:haproxy_listen].each do |directive,values|
+
+          f.write "listen #{directive}"
+            if values.kind_of?(Array)
+              values.each do |value|
+                f.write "\t#{directive} #{value}\n"
+              end
+            else
+              f.write "\t#{directive} #{values}\n"
+            end
+          end
+        end
+
       end
     end
 
