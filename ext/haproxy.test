@@ -8,10 +8,22 @@ defaults
 	mode http
 	retries 3
 	maxconn 2000
-	timeout {"connect"=>"5s", "client"=>"50s", "server"=>"50s", "http-keep-alive"=>"1s", "http-request"=>"15s", "queue"=>"30s", "tarpit"=>"60s"}
+	connect 5s
+	client 50s
+	server 50s
+	http-keep-alive 1s
+	http-request 15s
+	queue 30s
+	tarpit 60s
 	option httplog
 	option dontlognull
 	option forwardfor
 	option http-server-close
 	option redispatch
-listen stats	stats {"bind"=>"0.0.0.0:9090", "mode"=>"http", "stats"=>["enable", "hide-version", "url /", "auth admin:admin"]}
+listen stats_test
+	bind 0.0.0.0:9090
+	mode http
+	stats enable
+	stats hide-version
+	stats url /
+	stats auth admin:admin

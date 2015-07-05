@@ -15,6 +15,10 @@ module Marathon_template
               values.each do |value|
                 f.write "\t#{directive} #{value}\n"
               end
+            elsif values.kind_of?(Hash)
+              values.each do |k,v|
+                f.write "\t#{k} #{v}\n"
+              end
             else
               f.write "\t#{directive} #{values}\n"
             end
@@ -31,6 +35,10 @@ module Marathon_template
               values.each do |value|
                 f.write "\t#{directive} #{value}\n"
               end
+            elsif values.kind_of?(Hash)
+              values.each do |k,v|
+                f.write "\t#{k} #{v}\n"
+              end
             else
               f.write "\t#{directive} #{values}\n"
             end
@@ -41,15 +49,20 @@ module Marathon_template
 
         # Write out the listners section
         if CONFIG[:haproxy_listen] 
-          CONFIG[:haproxy_listen].each do |directive,values|
-
-          f.write "listen #{directive}"
-            if values.kind_of?(Array)
-              values.each do |value|
-                f.write "\t#{directive} #{value}\n"
+          CONFIG[:haproxy_listen].each do |listener, configuration|
+          f.write "listen #{listener}\n"
+            configuration.each do |setting, values|
+              if values.kind_of?(Array)
+                values.each do |value|
+                  f.write "\t#{setting} #{value}\n"
+                end
+              elsif values.kind_of?(Hash)
+                values.each do |k,v|
+                  f.write "\t#{k} #{v}\n"
+                end
+              else
+                f.write "\t#{setting} #{values}\n"
               end
-            else
-              f.write "\t#{directive} #{values}\n"
             end
           end
         end
