@@ -40,7 +40,7 @@ begin
   Marathon_template::Deploy.haproxy
   
   # Configure Cron Job
-  #Marathon_template::Cron.add
+  Marathon_template::Cron.add
   
 rescue Exception => e
   puts e.backtrace
