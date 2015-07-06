@@ -1,5 +1,7 @@
 ---
+# Where is your Marathon?
 marathon: 'http://10.33.100.11:8080'
+# Main HaProxy block
 haproxy:
   global:
     daemon:
@@ -12,6 +14,7 @@ haproxy:
     mode: http
     retries: 3
     maxconn: 2000
+# Any HaProxy param that it utilized more than once can be passed a hash of options
     timeout:
       connect: '5s'
       client: '50s'
@@ -20,12 +23,14 @@ haproxy:
       http-request: 15s
       queue: 30s
       tarpit: 60s
+# Or an array of options
     option:
       - httplog
       - dontlognull
       - forwardfor
       - http-server-close
       - redispatch 
+# Listen block 
   listens:
     stats_test:
       bind: '0.0.0.0:9090'
@@ -35,21 +40,26 @@ haproxy:
         - hide-version
         - 'url /'
         - 'auth admin:admin'
-# Can add server blocks in listen address as well
+# Optional server block
 #      server:    
-#        app_name: versionctl 
+#        app_name: my_app_name_in_marathon
+# Options to pass into haproxy config on the server line
 #        options: check
+#
+# Frontend blocks
   frontends:
     http-in:
       bind: '*:80'
       mode: http
       default_backend: nodes
+# Backend blocks
   backends:
     nodes:
       balance: leastconn
       option: forwardfor
       http-request: 
         - 'http-request set-header X-Forwarded-Port %[dst_port]'
+# Backend also accept the server block
       server:    
-        app_name: versionctl 
+        app_name: my_app_name_in_marathon
         options: check

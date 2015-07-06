@@ -144,7 +144,11 @@ module Marathon_template
           return_hash[task['host']] = task['ports']
         end
       else
-        abort LOG.error "Failed connecting to #{@uri}, response code: #{response.code}"
+        if response.code == '404'
+          abort LOG.error "Failed connecting to #{marathon_app}, response code: #{response.code}\n Are you sure the app #{app_name} exists?"
+        else
+          abort LOG.error "Failed connecting to #{marathon_app}, response code: #{response.code}"
+        end
       end
       return_hash
     end

@@ -27,18 +27,9 @@ module Marathon_template
       @config[:haproxy_backends]    = config_file['haproxy']['backends']    || nil
       @config[:haproxy_path]        = config_file['haproxy_path']           || '/etc/haproxy'
       @config[:cron_splay]          = config_file['cron_splay_time']        || '* * * * * marathon_template'
-      # Determine where HaProxy lives
-#      distro = IO.popen('uname').readlines
-#      if distro == 'Linux' 
-#        @config[:distro] = distro
-#      else
-#        abort "Sorry, #{distro} is not supported." 
-#      end
-
-#      @config.each do |k,v|
-#        LOG.info("#{k}: #{v}")
-#      end
-      @config
+      @config.each do |k,v|
+        LOG.info("#{k}: #{v}")
+      end       
     end
   end
 end
