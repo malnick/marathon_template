@@ -34,12 +34,13 @@ begin
   # Create a usable hash of configuration 
   CONFIG = Marathon_template::Options.initialize(config_path)
 
-  # TODO Marathon_template::Install.haproxy(CONFIG) 
+  # TODO Marathon_template::Install.haproxy
   
   # Deploy haproxy.cfg 
   Marathon_template::Deploy.haproxy
   
-  # TODO add in a cron job for every minute refresh of Deploy class if the cron job does not already exist
+  # Configure Cron Job
+  #Marathon_template::Cron.add
   
 rescue Exception => e
   puts e.backtrace
