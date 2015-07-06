@@ -1,12 +1,13 @@
 module Marathon_template
   class Deploy
     def self.haproxy
+      test_haproxy_dir
       write_haproxy_cfg
-      #reload_haproxy_service
+      reload_haproxy_service
     end
 
     def self.write_haproxy_cfg
-      File.open('/Users/malnick/projects/mesosphere_template/ext/haproxy.test', 'wb') do |f|
+      File.open("#{CONFIG[:haproxy_path]}/haproxy.cfg", 'wb') do |f|
         # Write out the global section
         if CONFIG[:haproxy_global] 
           f.write "global\n"
@@ -148,7 +149,14 @@ module Marathon_template
       return_hash
     end
 
-    def reload_haproxy_service
+    def self.test_haproxy_dir
+      unless Dir.exists? CONFIG[:haproxy_path]
+        LOG.info "#{CONFIG[:haproxy_path]} not found, creating..."
+        Dir.mkdir CONFIG[:haproxy_path]
+      end
+    end
+
+    def self.reload_haproxy_service
       system("service haproxy reload")
     end
 

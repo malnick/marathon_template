@@ -13,8 +13,6 @@ module Marathon_template
         abort LOG.error "Config file not found! Please make sure #{config_path} exists."
       end
 
-      LOG.info "##### Configuration #####"
-      LOG.info '*'
       file = YAML.load(File.open(config_path, 'r'))
       file.each do |k,v|
         config_file[k] = v
@@ -27,7 +25,8 @@ module Marathon_template
       @config[:haproxy_listen]      = config_file['haproxy']['listens']     || nil
       @config[:haproxy_frontends]   = config_file['haproxy']['frontends']   || nil
       @config[:haproxy_backends]    = config_file['haproxy']['backends']    || nil
-      
+      @config[:haproxy_path]        = config_file['haproxy_path']           || '/etc/haproxy'
+      @config[:cron_splay]          = config_file['cron_splay_time']        || '* * * * * marathon_template'
       # Determine where HaProxy lives
 #      distro = IO.popen('uname').readlines
 #      if distro == 'Linux' 
@@ -36,9 +35,9 @@ module Marathon_template
 #        abort "Sorry, #{distro} is not supported." 
 #      end
 
-      @config.each do |k,v|
-        LOG.info("#{k}: #{v}")
-      end
+#      @config.each do |k,v|
+#        LOG.info("#{k}: #{v}")
+#      end
       @config
     end
   end
