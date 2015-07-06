@@ -1,6 +1,16 @@
 # Marathon Template
 Generate dynamic haproxy config. 
 
+## Modifies
+
+1. /etc/haproxy/haproxy.cfg - marathon template will purge existing haproxy.cfg file
+1. /etc/crontab - marathon template will append a cron job to execute marathon template every minute, splay time can be set in /etc/haproxy.yaml
+
+## Setup
+
+1. ```cp ext/haproxy_example.yaml /etc/haproxy.yaml```
+1. ``` sudo ruby bin/marathon_template.rb```
+
 ## Method
 
 Eventually: ```gem install marathon_template```
@@ -130,10 +140,9 @@ backend my_app
 ## Execute
 ```bin/marathon_template start``` 
 
-1. Reads ```ext/haproxy_example.yaml``` and queries the specified marathon for any server['app_name'] definitions in 'backend' or 'listen' sections; writes the haproxy configuration to the filesystem, currently ```ext/haproxy.test```
+1. Reads ```/etc/haproxy_example.yaml``` and queries the specified marathon for any server['app_name'] definitions in 'backend' or 'listen' sections; writes the haproxy configuration to the filesystem, currently ```/etc/haproxy/haproxy.cfg```
 
 
 ## TODO
 
 1. Marathon_template::Install - install haproxy veresion specified in haproxy.yaml
-2. Add cron job for executing deploy
