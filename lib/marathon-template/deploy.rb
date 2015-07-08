@@ -108,7 +108,7 @@ module Marathon_template
                 servers   = get_servers(app_name)
                 LOG.info "#{app_name}: #{servers}"
                 servers.each do |host, port|
-                  f.write "\t#{app_name} #{host}:#{port.first} #{options}\n"
+                  f.write "\tserver #{app_name} #{host}:#{port.first} #{options}\n"
                 end 
               elsif values.kind_of?(Array)
                 values.each do |value|
