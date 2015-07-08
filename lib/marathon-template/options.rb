@@ -26,7 +26,7 @@ module Marathon_template
       @config[:haproxy_frontends]   = config_file['haproxy']['frontends']   || nil
       @config[:haproxy_backends]    = config_file['haproxy']['backends']    || nil
       @config[:haproxy_path]        = config_file['haproxy_path']           || '/etc/haproxy'
-      @config[:cron_splay]          = config_file['cron_splay_time']        || '* * * * * marathon-template > /dev/null 2>&1'
+      @config[:cron_splay]          = config_file['cron_splay_time']        || '* * * * * /usr/local/bin/marathon-template > /var/log/marathon-template-lastrun.log 2>&1'
       @config.each do |k,v|
         LOG.info("#{k}: #{v}")
       end       
