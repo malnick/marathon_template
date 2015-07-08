@@ -108,7 +108,7 @@ module Marathon_template
                 servers   = get_servers(app_name)
                 LOG.info "#{app_name}: #{servers}"
                 servers.each do |host, port|
-                  f.write "\tserver #{app_name} #{host}:#{port.first} #{options}\n"
+                  f.write "\tserver #{app_name} #{host.split('_').first}:#{port.first} #{options}\n"
                 end 
               elsif values.kind_of?(Array)
                 values.each do |value|
@@ -141,7 +141,12 @@ module Marathon_template
         json        = JSON.parse(response.body)
         tasks       = json['app']['tasks']
         tasks.each_with_index do |task, i|
-          return_hash[task['host']] = task['ports']
+          LOG.info "Found host #{task['host']} and port #{task['ports']}"
+          return_hash["#{task['host']}_#{i}"] = task['ports']
+#          if task['ports'].length == 1
+#+             LOG.info "Found host #{task['host']} and port #{task['ports']}"
+#              return_hash[i] = { task['host'] => task['port'] }
+#              return_array << "#{task['host']}:#{task['ports'][1]}"
         end
       else
         if response.code == '404'
