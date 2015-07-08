@@ -41,7 +41,6 @@ module Marathon_template
     Marathon_template::Cron.add
     
   rescue Exception => e
-    puts e.backtrace
-    puts e.message
+    puts "marathon-template failed to execute." 
   end
 end

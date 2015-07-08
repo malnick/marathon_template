@@ -128,34 +128,38 @@ module Marathon_template
     end
 
     def self.get_servers(app_name)
-      LOG.info "Getting host and port assignments for #{app_name}..."
-      marathon_app      = "#{CONFIG[:marathon]}/v2/apps/#{app_name}"
-      encoded_uri       = URI.encode(marathon_app.to_s)
-      uri               = URI.parse(encoded_uri)
-      http              = Net::HTTP.new(uri.host, uri.port)
-      request           = Net::HTTP::Get.new(uri.request_uri)
-      response          = http.request(request)
+      begin
+        LOG.info "Getting host and port assignments for #{app_name}..."
+        marathon_app      = "#{CONFIG[:marathon]}/v2/apps/#{app_name}"
+        encoded_uri       = URI.encode(marathon_app.to_s)
+        uri               = URI.parse(encoded_uri)
+        http              = Net::HTTP.new(uri.host, uri.port)
+        request           = Net::HTTP::Get.new(uri.request_uri)
+        response          = http.request(request)
 
-      if response.code == '200'
-        return_hash = Hash.new 
-        json        = JSON.parse(response.body)
-        tasks       = json['app']['tasks']
-        tasks.each_with_index do |task, i|
-          LOG.info "Found host #{task['host']} and port #{task['ports']}"
-          return_hash["#{task['host']}_#{i}"] = task['ports']
-#          if task['ports'].length == 1
-#+             LOG.info "Found host #{task['host']} and port #{task['ports']}"
-#              return_hash[i] = { task['host'] => task['port'] }
-#              return_array << "#{task['host']}:#{task['ports'][1]}"
-        end
-      else
-        if response.code == '404'
-          abort LOG.error "Failed connecting to #{marathon_app}, response code: #{response.code}\n Are you sure the app #{app_name} exists?"
+        if response.code == '200'
+          return_hash = Hash.new 
+          json        = JSON.parse(response.body)
+          tasks       = json['app']['tasks']
+          tasks.each_with_index do |task, i|
+            LOG.info "Found host #{task['host']} and port #{task['ports']}"
+            return_hash["#{task['host']}_#{i}"] = task['ports']
+  #          if task['ports'].length == 1
+  #+             LOG.info "Found host #{task['host']} and port #{task['ports']}"
+  #              return_hash[i] = { task['host'] => task['port'] }
+  #              return_array << "#{task['host']}:#{task['ports'][1]}"
+          end
         else
-          abort LOG.error "Failed connecting to #{marathon_app}, response code: #{response.code}"
+          if response.code == '404'
+            abort LOG.error "Failed connecting to #{marathon_app}, response code: #{response.code}\n Are you sure the app #{app_name} exists?"
+          else
+            abort LOG.error "Failed connecting to #{marathon_app}, response code: #{response.code}"
+          end
         end
+        return_hash
+      rescue Exception => e
+        e.message
       end
-      return_hash
     end
 
     def self.test_haproxy_dir
