@@ -18,7 +18,7 @@ module Marathon_template
               end
             elsif values.kind_of?(Hash)
               values.each do |k,v|
-                f.write "\t#{k} #{v}\n"
+                f.write "\t#{directive} #{k} #{v}\n"
               end
             else
               f.write "\t#{directive} #{values}\n"
