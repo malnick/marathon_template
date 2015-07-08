@@ -10,13 +10,13 @@ module Marathon_template
           else
             File.open('/etc/crontab', 'a') do |w|
               LOG.info "Appending #{CONFIG[:cron_splay]} to /etc/crontab"
-              w.write CONFIG[:cron_splay]
+              w.write "#{CONFIG[:cron_splay]}\n"
             end
           end
         else
           LOG.info "No crontab found, creating and adding #{CONFIG[:cron_splay]}"
           File.open('/etc/crontab', 'wb') do |w|
-            w.write CONFIG[:cron_splay]
+            w.write "#{CONFIG[:cron_splay]}\n"
           end
         end
       end
