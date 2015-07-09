@@ -106,10 +106,16 @@ module Marathon_template
                 app_name  = values['app_name']
                 options   = values['options']
                 servers   = get_servers(app_name)
-                LOG.info "#{app_name}: #{servers}"
-                servers.each do |host, port|
-                  f.write "\tserver #{app_name}-#{host.split('_').last} #{host.split('_').first}:#{port.first} #{options}\n"
-                end 
+                if values['management_port']
+                  LOG.info "#{app_name}: #{servers}"
+                  servers.each do |host, port|
+                    f.write "\tserver #{app_name}-#{host.split('_').last} #{host.split('_').first}:#{port[0]} #{options} #{port[1]}\n"
+                  end
+                else
+                  servers.each do |host, port|
+                    f.write "\tserver #{app_name}-#{host.split('_').last} #{host.split('_').first}:#{port[0]} #{options}\n"
+                  end
+                end
               elsif values.kind_of?(Array)
                 values.each do |value|
                   f.write "\t#{setting} #{value}\n"
@@ -159,6 +165,7 @@ module Marathon_template
         return_hash
       rescue Exception => e
         e.message
+        e.backtrace
       end
     end
 

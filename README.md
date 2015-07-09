@@ -141,3 +141,36 @@ backend my_app
   my_app mesosslave2:31000 check
 ```
 
+## Port Assignments
+Marathon template expects the first port in the returned array to be the service port. 
+
+If you are using another port for management (such as a /info endpoint) that also retuns a /health endpoint you might want to add that port to 'check' in haproxy.
+
+In this case, ensure your configuration for your container exposes both ports in your marathon json file:
+
+```json
+"portMappings": [
+    { "containerPort": 11100, "hostPort": 0, "protocol": "tcp" },
+    { "containerPort": 11110, "hostPort": 0, "protocol": "tcp" }
+  ]
+```
+
+Then, update the server section of haproxy.yaml to contain the switch to use that port as the check port:
+
+```yaml
+server:
+  app_name: myservice
+  options: check
+  management_port: true
+```
+
+This yields:
+
+```
+backend myservice
+  balance leastconn
+  option forwardfor
+  option httpclose
+  option httpchk GET /health HTTP/1.0
+  server myservice-0 mesosslave:31000 check 31001
+```
