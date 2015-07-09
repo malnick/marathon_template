@@ -1,6 +1,10 @@
 # Marathon Template
 Generate dynamic haproxy config. 
 
+```
+gem install marathon-template
+```
+
 ## Modifies
 
 1. /etc/haproxy/haproxy.cfg - marathon template will purge existing haproxy.cfg file
@@ -137,12 +141,3 @@ backend my_app
   my_app mesosslave2:31000 check
 ```
 
-## Execute
-```bin/marathon_template start``` 
-
-1. Reads ```/etc/haproxy_example.yaml``` and queries the specified marathon for any server['app_name'] definitions in 'backend' or 'listen' sections; writes the haproxy configuration to the filesystem, currently ```/etc/haproxy/haproxy.cfg```
-
-
-## TODO
-
-1. Marathon_template::Install - install haproxy veresion specified in haproxy.yaml
