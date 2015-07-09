@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
 spec.name          = "marathon-template"
-spec.version       = '0.0.10'
+spec.version       = '0.0.11'
 spec.authors       = ["Jeff Malnick"]
 spec.email         = ["malnick@gmail.com"]
 spec.summary       = %q{Create dynamic haproxy configs from marathon resources}
