@@ -109,7 +109,7 @@ module Marathon_template
                 if values['management_port']
                   LOG.info "#{app_name}: #{servers}"
                   servers.each do |host, port|
-                    f.write "\tserver #{app_name}-#{host.split('_').last} #{host.split('_').first}:#{port[0]} #{options} #{port[1]}\n"
+                    f.write "\tserver #{app_name}-#{host.split('_').last} #{host.split('_').first}:#{port[0]} #{options} port #{port[1]}\n"
                   end
                 else
                   servers.each do |host, port|
