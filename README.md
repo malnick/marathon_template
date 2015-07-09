@@ -174,3 +174,6 @@ backend myservice
   option httpchk GET /health HTTP/1.0
   server myservice-0 mesosslave:31000 check 31001
 ```
+
+## Automated Deployment
+Check out the [Puppet module](https://github.com/malnick/puppet-marathon_template) for automating the install of marathon-template
