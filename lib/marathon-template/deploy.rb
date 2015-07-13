@@ -106,7 +106,7 @@ module Marathon_template
                 app_name  = values['app_name']
                 options   = values['options']
                 servers   = get_servers(app_name)
-                if servers['not_found'] #== '404' 
+                if servers['404'] #== '404' 
         LOG.info servers
                   LOG.info "#{app_name} was not found in Marathon, skipping but continuing to manage the haproxy.cfg"
                 elsif values['management_port']
@@ -150,11 +150,9 @@ module Marathon_template
       http              = Net::HTTP.new(uri.host, uri.port)
       request           = Net::HTTP::Get.new(uri.request_uri)
       response          = http.request(request)
-      LOG.info response
+      return_hash       = Hash.new 
       # If we get a 200, lets return the servier hosts and ports assignments
       if response.code == '200'
-        LOG.info response.code
-        return_hash = Hash.new 
         json        = JSON.parse(response.body)
         tasks       = json['app']['tasks']
         tasks.each_with_index do |task, i|
@@ -163,9 +161,10 @@ module Marathon_template
         end
       # If we don't then do not blow up, simply return not found and move on. This way usable servers still get proxied. 
       elsif response.code == '404'
-        LOG.info "Response code: #{response.code}"
-        LOG.info "Are you sure the app #{app_name} exsts?"
-        return_hash['not_found'] = response.code
+        LOG.warn "Response code: #{response.code}"
+        LOG.warn "Are you sure the app #{app_name} exsts?"
+        return_hash[response.code] = 'not_found' 
+        LOG.info return_hash
       else
         abort LOG.error "Got #{response.code} which is neither 404 or 200"
       end
