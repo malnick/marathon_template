@@ -137,41 +137,38 @@ module Marathon_template
     end
 
     def self.get_servers(app_name)
-      begin
-        LOG.info "Getting host and port assignments for #{app_name}..."
-        # Setup the URI for marathon and check it before moving on
-        marathon_app      = "#{CONFIG[:marathon]}/v2/apps/#{app_name}"
-        unless URI.parse(URI.encode(marathon_app)) 
-          abort LOG.info "The URI for #{marathon_app} doesn't look right." 
-        end
-        LOG.info "Querying #{marathon_app}"
-        # Parse the URI for reals and make a request
-        encoded_uri       = URI.encode(marathon_app.to_s)
-        uri               = URI.parse(encoded_uri)
-        http              = Net::HTTP.new(uri.host, uri.port)
-        request           = Net::HTTP::Get.new(uri.request_uri)
-        response          = http.request(request)
-        # If we get a 200, lets return the servier hosts and ports assignments
-        if response.code == '200'
-          return_hash = Hash.new 
-          json        = JSON.parse(response.body)
-          tasks       = json['app']['tasks']
-          tasks.each_with_index do |task, i|
-            LOG.info "Found host #{task['host']} and port #{task['ports']}"
-            return_hash["#{task['host']}_#{i}"] = task['ports']
-          end
-        # If we don't then do not blow up, simply return not found and move on. This way usable servers still get proxied. 
-        elsif response.code == '404'
-          LOG.Info "\tResponse code: #{response.code}\n \tAre you sure the app #{app_name} exsts?\n"
-          return_hash['not_found'] = response.code
-        else
-          LOG.error "Got #{response.code} which is neither 404 or 200"
-        end
-        return_hash
-      rescue Exception => e
-        e.message
-        e.backtrace
+      LOG.info "Getting host and port assignments for #{app_name}..."
+      # Setup the URI for marathon and check it before moving on
+      marathon_app      = "#{CONFIG[:marathon]}/v2/apps/#{app_name}"
+      unless URI.parse(URI.encode(marathon_app)) 
+        abort LOG.info "The URI for #{marathon_app} doesn't look right." 
       end
+      LOG.info "Querying #{marathon_app}"
+      # Parse the URI for reals and make a request
+      encoded_uri       = URI.encode(marathon_app.to_s)
+      uri               = URI.parse(encoded_uri)
+      http              = Net::HTTP.new(uri.host, uri.port)
+      request           = Net::HTTP::Get.new(uri.request_uri)
+      response          = http.request(request)
+      LOG.info response
+      # If we get a 200, lets return the servier hosts and ports assignments
+      if response.code == '200'
+        LOG.info response.code
+        return_hash = Hash.new 
+        json        = JSON.parse(response.body)
+        tasks       = json['app']['tasks']
+        tasks.each_with_index do |task, i|
+          LOG.info "Found host #{task['host']} and port #{task['ports']}"
+          return_hash["#{task['host']}_#{i}"] = task['ports']
+        end
+      # If we don't then do not blow up, simply return not found and move on. This way usable servers still get proxied. 
+      elsif response.code == '404'
+        LOG.info "\tResponse code: #{response.code}\n \tAre you sure the app #{app_name} exsts?\n"
+        return_hash['not_found'] = response.code
+      else
+        LOG.error "Got #{response.code} which is neither 404 or 200"
+      end
+      return_hash
     end
 
     def self.test_haproxy_dir
