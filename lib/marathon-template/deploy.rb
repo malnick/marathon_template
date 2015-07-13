@@ -163,10 +163,11 @@ module Marathon_template
         end
       # If we don't then do not blow up, simply return not found and move on. This way usable servers still get proxied. 
       elsif response.code == '404'
-        LOG.info "\tResponse code: #{response.code}\n \tAre you sure the app #{app_name} exsts?\n"
+        LOG.info "Response code: #{response.code}"
+        LOG.info "Are you sure the app #{app_name} exsts?"
         return_hash['not_found'] = response.code
       else
-        LOG.error "Got #{response.code} which is neither 404 or 200"
+        abort LOG.error "Got #{response.code} which is neither 404 or 200"
       end
       return_hash
     end
