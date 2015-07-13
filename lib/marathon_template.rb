@@ -42,5 +42,7 @@ module Marathon_template
     
   rescue Exception => e
     puts "marathon-template failed to execute." 
+    puts e.message
+    puts e.backtrace
   end
 end

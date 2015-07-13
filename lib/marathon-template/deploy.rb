@@ -106,7 +106,10 @@ module Marathon_template
                 app_name  = values['app_name']
                 options   = values['options']
                 servers   = get_servers(app_name)
-                if values['management_port']
+                if servers['not_found'] #== '404' 
+        LOG.info servers
+                  LOG.info "#{app_name} was not found in Marathon, skipping but continuing to manage the haproxy.cfg"
+                elsif values['management_port']
                   LOG.info "#{app_name}: #{servers}"
                   servers.each do |host, port|
                     f.write "\tserver #{app_name}-#{host.split('_').last} #{host.split('_').first}:#{port[0]} #{options} port #{port[1]}\n"
@@ -136,13 +139,18 @@ module Marathon_template
     def self.get_servers(app_name)
       begin
         LOG.info "Getting host and port assignments for #{app_name}..."
+        # Setup the URI for marathon and check it before moving on
         marathon_app      = "#{CONFIG[:marathon]}/v2/apps/#{app_name}"
+        unless URI.parse(URI.encode(marathon_app)) 
+          abort LOG.info "The URI for #{marathon_app} doesn't look right." 
+        end
+        # Parse the URI for reals and make a request
         encoded_uri       = URI.encode(marathon_app.to_s)
         uri               = URI.parse(encoded_uri)
         http              = Net::HTTP.new(uri.host, uri.port)
         request           = Net::HTTP::Get.new(uri.request_uri)
         response          = http.request(request)
-
+        # If we get a 200, lets return the servier hosts and ports assignments
         if response.code == '200'
           return_hash = Hash.new 
           json        = JSON.parse(response.body)
@@ -150,17 +158,13 @@ module Marathon_template
           tasks.each_with_index do |task, i|
             LOG.info "Found host #{task['host']} and port #{task['ports']}"
             return_hash["#{task['host']}_#{i}"] = task['ports']
-  #          if task['ports'].length == 1
-  #+             LOG.info "Found host #{task['host']} and port #{task['ports']}"
-  #              return_hash[i] = { task['host'] => task['port'] }
-  #              return_array << "#{task['host']}:#{task['ports'][1]}"
           end
+        # If we don't then do not blow up, simply return not found and move on. This way usable servers still get proxied. 
+        elsif response.code == '404'
+          LOG.Info "\tResponse code: #{response.code}\n \tAre you sure the app #{app_name} exsts?\n"
+          return_hash['not_found'] = response.code
         else
-          if response.code == '404'
-            abort LOG.error "Failed connecting to #{marathon_app}, response code: #{response.code}\n Are you sure the app #{app_name} exists?"
-          else
-            abort LOG.error "Failed connecting to #{marathon_app}, response code: #{response.code}"
-          end
+          LOG.error "Got #{response.code} which is neither 404 or 200"
         end
         return_hash
       rescue Exception => e
