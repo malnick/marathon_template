@@ -144,6 +144,7 @@ module Marathon_template
         unless URI.parse(URI.encode(marathon_app)) 
           abort LOG.info "The URI for #{marathon_app} doesn't look right." 
         end
+        LOG.info "Querying #{marathon_app}"
         # Parse the URI for reals and make a request
         encoded_uri       = URI.encode(marathon_app.to_s)
         uri               = URI.parse(encoded_uri)
